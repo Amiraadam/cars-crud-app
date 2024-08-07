@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAR CRUD API APPLICATION</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+</head>
+<body>
+    <div x-data="carApp()">
+        <h1>Car CRUD App</h1>
+
+        <div>
+            <h2>Add New Car</h2>
+            <form @submit.prevent="addCar">
+                <label>
+                    Color:
+                    <input type="text" x-model="newCar.color">
+                </label>
+                <label>
+                    Make:
+                    <input type="text" x-model="newCar.make">
+                </label>
+                <label>
+                    Model:
+                    <input type="text" x-model="newCar.model">
+                </label>
+                <label>
+                    Registration Number:
+                    <input type="text" x-model="newCar.Reg_number">
+                </label>
+                <button type="submit">Add Car</button>
+            </form>
+        </div>
+            <h2>Car List</h2>
+            <ul>
+                <template x-for="car in cars" :key="car.reg_number">
+                   <li>
+                    <span x-text="'${car.color} ${car.make} ${car.model} (${car.reg_number})'"></span>
+                    <button @click="deleteCar(car.reg_number)">Delete</button>
+                    </li> 
+                </template>
+            </ul>
+        <div>
+
+            <div>
+                <h2>Nissan from Malmesbury</h2>
+                <button @click="countNissanFromCK">Count Nissan from CK</button>
+                <p x-text="'Count: ' + nissanCount"></p>
+            </div>
+        </div>
+
+        <script>
+            function carApp() {
+                return {
+                    cars: [],
+                    newCar: { color: '', make: '', model: '', reg_number: '' },
+                    nissanCount: 0,
+                    init() {
+                        this.fetchCars();
+                    },
+                    async fetchCars() {
+                        const response = await axios.get('http://localhost:3000/cars');
+                        this.cars = response.data;
+                    },
+                    async addCar() {
+                        await axios.post('http://localhost:3000/cars', this.newCar);
+                        this.newCar = { color: '', make: '', model: '', reg_number: '' };
+                        this.fetchCars();
+                    },
+                    async deleteCar(reg_number) {
+                        await axios.delete('http://localhost:3000/cars/${reg_number}');
+                        this.fetchCars();
+                    },
+                    async countNissansFromCK() {
+                      const response = await axios.get('http://localhost:3000/nissansFromCK');
+                      this.nissanCount = response.data.count;  
+                    }
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>
